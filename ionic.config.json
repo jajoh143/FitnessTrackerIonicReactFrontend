@@ -1,0 +1,7 @@
+{
+  "name": "fitness-tracker-frontend",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
