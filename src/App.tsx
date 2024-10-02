@@ -1,12 +1,19 @@
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
   IonIcon,
   IonLabel,
   IonRouterOutlet,
+  IonRow,
   IonTabBar,
   IonTabButton,
   IonTabs,
+  IonTitle,
+  IonToolbar,
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -38,50 +45,65 @@ import '@ionic/react/css/display.css';
  * https://ionicframework.com/docs/theming/dark-mode
  */
 
-/* import '@ionic/react/css/palettes/dark.always.css'; */
-/* import '@ionic/react/css/palettes/dark.class.css'; */
+import '@ionic/react/css/palettes/dark.always.css';
+import '@ionic/react/css/palettes/dark.class.css';
 import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import Login from './pages/Login/Login';
+import { currentUser } from './pages/Login/Login';
+import { computed } from '@preact/signals-react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Dashboard from './pages/Dashboard/Dashboard';
+import { isAuthed } from './data/store';
+import ProtectedRoute from './components/PrivateRoute/PrivateRoute';
 
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route exact path="/tab1">
-            <Tab1 />
-          </Route>
-          <Route exact path="/tab2">
-            <Tab2 />
-          </Route>
-          <Route path="/tab3">
-            <Tab3 />
-          </Route>
-          <Route exact path="/">
-            <Redirect to="/tab1" />
-          </Route>
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon aria-hidden="true" icon={triangle} />
-            <IonLabel>Tab 1</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
-            <IonIcon aria-hidden="true" icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab3" href="/tab3">
-            <IonIcon aria-hidden="true" icon={square} />
-            <IonLabel>Tab 3</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
-  </IonApp>
-);
+const queryClient = new QueryClient();
+
+const App: React.FC = () => {
+
+  const username = computed(() => {
+    return currentUser.value.username;
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <IonApp>
+          <IonHeader>
+            <IonToolbar>
+                <IonGrid>
+                  <IonRow>
+                    <IonCol>
+                      <IonTitle>Fitness Tracker</IonTitle>
+                    </IonCol>
+                    <IonCol>
+                      <IonTitle>{username}</IonTitle>
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className='ion-padding'>
+          <IonReactRouter>
+          <IonTabs>
+            <IonRouterOutlet>
+              <Route exact path="/Login">
+                <Login />
+              </Route>
+              <ProtectedRoute exact path="/Dashboard" component={Dashboard} />
+              <Route exact path="/">
+                <Redirect to="/Login" />
+              </Route>
+            </IonRouterOutlet>
+          </IonTabs>
+        </IonReactRouter>
+          </IonContent>
+      </IonApp>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
